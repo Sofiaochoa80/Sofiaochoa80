@@ -1,8 +1,8 @@
 # 🌈 Mundo Mágico de Aprender
 
-Jogo educativo e **lúdico** para crianças de **3 a 6 anos**. Funciona direto no
-navegador (celular, tablet ou computador), sem instalação e sem internet depois
-de aberto.
+Jogo educativo e **lúdico** para crianças dos **3 aos 6 anos**, em **português de
+Portugal**. Funciona diretamente no navegador (telemóvel, tablet ou computador),
+sem instalação e sem internet depois de aberto.
 
 ## ✨ O que a criança aprende
 
@@ -17,28 +17,29 @@ de aberto.
 
 ## 🧒 Pensado para os pequenos
 
-- **Narração por voz em português** — lê tudo em voz alta para quem ainda não
-  sabe ler (botão 🔁 "Ouvir de novo").
+- **Narração por voz em português de Portugal (pt-PT)** — lê tudo em voz alta
+  para quem ainda não sabe ler (botão 🔁 "Ouvir outra vez").
 - **Botões grandes e coloridos**, fáceis para dedinhos.
 - **Recompensa com estrelas ⭐ e festa de confete** 🎉 a cada 5 acertos.
-- **Sem punição:** ao errar, a criança ouve uma dica carinhosa e tenta de novo.
+- **Sem punição:** ao errar, a criança ouve uma dica carinhosa e tenta outra vez.
 - **Sons alegres** de acerto e erro.
 - Botão de **ligar/desligar o som** 🔊.
 
 ## ▶️ Como jogar
 
-Basta abrir o arquivo **`index.html`** no navegador.
+Basta abrir o ficheiro **`index.html`** no navegador.
 
-Ou, para rodar como um servidor local:
+Ou, para correr como servidor local:
 
 ```bash
 # Python 3
 python3 -m http.server 8000
-# depois abra http://localhost:8000 no navegador
+# depois abre http://localhost:8000 no navegador
 ```
 
-> Dica: para a narração funcionar bem, use Chrome, Edge ou Safari com som ligado.
-> O primeiro toque na tela libera o áudio (exigência dos navegadores).
+> Dica: para a narração funcionar bem, usa o Chrome, Edge ou Safari com o som
+> ligado e com uma voz portuguesa (pt-PT) instalada no sistema. O primeiro toque
+> no ecrã liberta o áudio (exigência dos navegadores).
 
 ## 🛠️ Tecnologia
 
@@ -48,7 +49,7 @@ os sons de feedback usam a *Web Audio API* — tudo nativo do navegador.
 ## 📁 Estrutura
 
 ```
-index.html   → estrutura das telas (menu + jogo)
+index.html   → estrutura dos ecrãs (menu + jogo)
 style.css    → visual lúdico e colorido
 game.js      → lógica dos 6 jogos, voz e recompensas
 ```

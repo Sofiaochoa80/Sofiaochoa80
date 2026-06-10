@@ -26,13 +26,13 @@
   let travado = false; // evita cliques durante a animação de acerto
 
   // ===================================================
-  //  NARRAÇÃO POR VOZ (Web Speech API, pt-BR)
+  //  NARRAÇÃO POR VOZ (Web Speech API, pt-PT)
   // ===================================================
   let vozPt = null;
   function escolherVoz() {
     const vozes = window.speechSynthesis ? speechSynthesis.getVoices() : [];
     vozPt =
-      vozes.find((v) => /pt[-_]BR/i.test(v.lang)) ||
+      vozes.find((v) => /pt[-_]PT/i.test(v.lang)) ||
       vozes.find((v) => /^pt/i.test(v.lang)) ||
       null;
   }
@@ -46,7 +46,7 @@
     try {
       speechSynthesis.cancel();
       const f = new SpeechSynthesisUtterance(texto);
-      f.lang = "pt-BR";
+      f.lang = "pt-PT";
       if (vozPt) f.voice = vozPt;
       f.rate = 0.9; // um pouquinho mais devagar para as crianças
       f.pitch = 1.15; // voz mais alegre
@@ -96,7 +96,7 @@
     { nome: "Laranja", hex: "#ff9a3f" },
     { nome: "Roxo", hex: "#a86bff" },
     { nome: "Rosa", hex: "#ff79c6" },
-    { nome: "Marrom", hex: "#a9744f" },
+    { nome: "Castanho", hex: "#a9744f" },
   ];
 
   const FORMAS = [
@@ -109,7 +109,7 @@
   ];
 
   const ANIMAIS = [
-    { nome: "Cachorro", emoji: "🐶", som: "Au au!" },
+    { nome: "Cão", emoji: "🐶", som: "Ão ão!" },
     { nome: "Gato", emoji: "🐱", som: "Miau!" },
     { nome: "Vaca", emoji: "🐮", som: "Muuu!" },
     { nome: "Pato", emoji: "🦆", som: "Quá quá!" },
@@ -159,7 +159,7 @@
         const opcoes = montarOpcoes(VOGAIS, certo, 3);
         return {
           enunciado: `Onde está a letra ${certo}?`,
-          perguntaHTML: `<div class="frase">Cadê a letra<br><span class="alvo">${certo}</span></div>`,
+          perguntaHTML: `<div class="frase">Onde está a letra<br><span class="alvo">${certo}</span></div>`,
           opcoes: opcoes.map((l) => ({ rotulo: l, valor: l, fala: l })),
           ehCerto: (o) => o.valor === certo,
         };
@@ -174,7 +174,7 @@
         const opcoes = montarOpcoes(NUMEROS, certo, 3);
         return {
           enunciado: `Qual é o número ${certo}?`,
-          perguntaHTML: `<div class="frase">Ache o número<br><span class="alvo">${certo}</span></div>`,
+          perguntaHTML: `<div class="frase">Encontra o número<br><span class="alvo">${certo}</span></div>`,
           opcoes: opcoes.map((n) => ({ rotulo: String(n), valor: n, fala: String(n) })),
           ehCerto: (o) => o.valor === certo,
         };
@@ -189,8 +189,8 @@
         const fruta = aleatorio(FRUTAS);
         const opcoes = montarOpcoes(NUMEROS.slice(0, 5), qtd, 3);
         return {
-          enunciado: "Quantos você vê? Conta comigo!",
-          perguntaHTML: `<div class="frase">Quantos têm aqui?<br><span class="alvo">${fruta.repeat(qtd)}</span></div>`,
+          enunciado: "Quantos vês? Conta comigo!",
+          perguntaHTML: `<div class="frase">Quantos vês aqui?<br><span class="alvo">${fruta.repeat(qtd)}</span></div>`,
           opcoes: opcoes.map((n) => ({ rotulo: String(n), valor: n, fala: String(n) })),
           ehCerto: (o) => o.valor === qtd,
         };
@@ -205,7 +205,7 @@
         const opcoes = montarOpcoes(CORES, certo, 3, "nome");
         return {
           enunciado: `Qual é a cor ${certo.nome}?`,
-          perguntaHTML: `<div class="frase">Toque na cor<br><span class="alvo" style="color:${certo.hex}">${certo.nome}</span></div>`,
+          perguntaHTML: `<div class="frase">Toca na cor<br><span class="alvo" style="color:${certo.hex}">${certo.nome}</span></div>`,
           opcoes: opcoes.map((c) => ({
             // bolinha grande colorida como opção
             rotulo: `<span style="display:inline-block;width:1em;height:1em;border-radius:50%;background:${c.hex};box-shadow:0 3px 6px rgba(0,0,0,.25)"></span>`,
@@ -224,8 +224,8 @@
         const certo = aleatorio(FORMAS);
         const opcoes = montarOpcoes(FORMAS, certo, 3, "nome");
         return {
-          enunciado: `Cadê o ${certo.nome}?`,
-          perguntaHTML: `<div class="frase">Ache o<br><span class="alvo">${certo.nome}</span></div>`,
+          enunciado: `Onde está o ${certo.nome}?`,
+          perguntaHTML: `<div class="frase">Encontra o<br><span class="alvo">${certo.nome}</span></div>`,
           opcoes: opcoes.map((f) => ({ rotulo: f.emoji, valor: f.nome, fala: f.nome })),
           ehCerto: (o) => o.valor === certo.nome,
         };
@@ -296,10 +296,10 @@
       elContaEstrelas.textContent = estrelas;
       const elogio = aleatorio([
         "Muito bem!",
-        "Isso mesmo!",
-        "Você acertou!",
+        "É isso mesmo!",
+        "Acertaste!",
         "Parabéns!",
-        "Show de bola!",
+        "Fantástico!",
         "Boa!",
       ]);
       falar(elogio);
@@ -314,7 +314,7 @@
       // erro: balança, fala o nome e deixa tentar de novo
       botao.classList.add("errado");
       somErro();
-      falar(opcao.fala ? `${opcao.fala}. Tenta de novo!` : "Tenta de novo!");
+      falar(opcao.fala ? `${opcao.fala}. Tenta outra vez!` : "Tenta outra vez!");
       setTimeout(() => botao.classList.remove("errado"), 500);
     }
   }
@@ -369,7 +369,7 @@
   // Mensagem de boas-vindas (só toca após interação por causa das regras dos navegadores)
   document.body.addEventListener(
     "pointerdown",
-    () => falar("Bem-vindo ao Mundo Mágico de Aprender! Escolha um jogo."),
+    () => falar("Bem-vindo ao Mundo Mágico de Aprender! Escolhe um jogo."),
     { once: true }
   );
 })();
