@@ -83,6 +83,62 @@
     }
   }
 
+  // ===================================================
+  //  NARRAÇÃO POR FICHEIROS DE ÁUDIO (voz neural meiga)
+  //  Se existir audio/<id>.mp3, toca esse ficheiro de
+  //  alta qualidade. Caso contrário, recorre à voz do
+  //  navegador (falar). Os ids são gerados a partir do
+  //  texto pela função "slug" — a mesma usada no script
+  //  ferramentas/gerar_vozes.py, para coincidirem.
+  // ===================================================
+  function slug(t) {
+    return t
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove acentos
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+  }
+
+  const manifesto = new Set(); // ids de áudio disponíveis
+  let audioAtual = null;
+
+  // Carrega a lista de áudios gerados (se existir a pasta audio/)
+  fetch("audio/clips.json")
+    .then((r) => (r.ok ? r.json() : []))
+    .then((ids) => {
+      ids.forEach((id) => manifesto.add(id));
+      // Havendo áudios neurais, o seletor de voz do sistema deixa de ser
+      // necessário — esconde-o para não confundir.
+      if (manifesto.size) {
+        const rotulo = document.getElementById("rotuloVoz");
+        if (rotulo) rotulo.hidden = true;
+      }
+    })
+    .catch(() => {});
+
+  function pararNarracao() {
+    if (window.speechSynthesis) speechSynthesis.cancel();
+    if (audioAtual) {
+      audioAtual.pause();
+      audioAtual = null;
+    }
+  }
+
+  // Função principal de narração usada pelo jogo
+  function narrar(texto) {
+    if (!somLigado || !texto) return;
+    const id = slug(texto);
+    if (manifesto.has(id)) {
+      pararNarracao();
+      const a = new Audio("audio/" + id + ".mp3");
+      audioAtual = a;
+      a.play().catch(() => falar(texto)); // se falhar, voz do sistema
+    } else {
+      falar(texto); // reserva: voz do navegador
+    }
+  }
+
   // Sons curtos de acerto/erro com Web Audio (sem arquivos)
   let audioCtx = null;
   function bip(freqs, dur) {
@@ -127,12 +183,12 @@
   ];
 
   const FORMAS = [
-    { nome: "Círculo", emoji: "⚪" },
-    { nome: "Quadrado", emoji: "🟥" },
-    { nome: "Triângulo", emoji: "🔺" },
-    { nome: "Estrela", emoji: "⭐" },
-    { nome: "Coração", emoji: "💛" },
-    { nome: "Losango", emoji: "🔶" },
+    { nome: "Círculo", emoji: "⚪", artigo: "o" },
+    { nome: "Quadrado", emoji: "🟥", artigo: "o" },
+    { nome: "Triângulo", emoji: "🔺", artigo: "o" },
+    { nome: "Estrela", emoji: "⭐", artigo: "a" },
+    { nome: "Coração", emoji: "💛", artigo: "o" },
+    { nome: "Losango", emoji: "🔶", artigo: "o" },
   ];
 
   const ANIMAIS = [
@@ -251,8 +307,8 @@
         const certo = aleatorio(FORMAS);
         const opcoes = montarOpcoes(FORMAS, certo, 3, "nome");
         return {
-          enunciado: `Onde está o ${certo.nome}?`,
-          perguntaHTML: `<div class="frase">Encontra o<br><span class="alvo">${certo.nome}</span></div>`,
+          enunciado: `Onde está ${certo.artigo} ${certo.nome}?`,
+          perguntaHTML: `<div class="frase">Encontra ${certo.artigo}<br><span class="alvo">${certo.nome}</span></div>`,
           opcoes: opcoes.map((f) => ({ rotulo: f.emoji, valor: f.nome, fala: f.nome })),
           ehCerto: (o) => o.valor === certo.nome,
         };
@@ -309,7 +365,7 @@
     });
 
     // Lê o enunciado em voz alta depois de um respiro
-    setTimeout(() => falar(perguntaAtual.enunciado), 350);
+    setTimeout(() => narrar(perguntaAtual.enunciado), 350);
   }
 
   function responder(botao, opcao) {
@@ -329,7 +385,7 @@
         "Fantástico!",
         "Boa!",
       ]);
-      falar(elogio);
+      narrar(elogio);
       // a cada 5 estrelas, faz uma festa de confete
       if (estrelas % 5 === 0) {
         festejar(elogio);
@@ -338,10 +394,10 @@
         setTimeout(proximaRodada, 1300);
       }
     } else {
-      // erro: balança, fala o nome e deixa tentar de novo
+      // erro: balança e incentiva a tentar outra vez
       botao.classList.add("errado");
       somErro();
-      falar(opcao.fala ? `${opcao.fala}. Tenta outra vez!` : "Tenta outra vez!");
+      narrar("Tenta outra vez!");
       setTimeout(() => botao.classList.remove("errado"), 500);
     }
   }
@@ -428,20 +484,20 @@
   document.getElementById("voltar").addEventListener("click", voltarMenu);
 
   document.getElementById("repetir").addEventListener("click", () => {
-    if (perguntaAtual) falar(perguntaAtual.enunciado);
+    if (perguntaAtual) narrar(perguntaAtual.enunciado);
   });
 
   botaoSom.addEventListener("click", () => {
     somLigado = !somLigado;
     botaoSom.textContent = somLigado ? "🔊" : "🔇";
-    if (!somLigado && window.speechSynthesis) speechSynthesis.cancel();
-    else falar("Som ligado!");
+    if (!somLigado) pararNarracao();
+    else narrar("Som ligado!");
   });
 
   // Mensagem de boas-vindas (só toca após interação por causa das regras dos navegadores)
   document.body.addEventListener(
     "pointerdown",
-    () => falar("Bem-vindo ao Mundo Mágico de Aprender! Escolhe um jogo."),
+    () => narrar("Bem-vindo ao Mundo Mágico de Aprender! Escolhe um jogo."),
     { once: true }
   );
 })();
