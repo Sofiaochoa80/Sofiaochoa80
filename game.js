@@ -29,13 +29,40 @@
   //  NARRAÇÃO POR VOZ (Web Speech API, pt-PT)
   // ===================================================
   let vozPt = null;
-  function escolherVoz() {
-    const vozes = window.speechSynthesis ? speechSynthesis.getVoices() : [];
-    vozPt =
-      vozes.find((v) => /pt[-_]PT/i.test(v.lang)) ||
-      vozes.find((v) => /^pt/i.test(v.lang)) ||
-      null;
+  let vozesPt = []; // todas as vozes portuguesas disponíveis
+  const VOZ_GUARDADA = "voz_escolhida_pt";
+
+  // Dá uma "nota" de qualidade à voz: quanto maior, melhor/mais natural.
+  function notaQualidade(v) {
+    const n = (v.name + " " + v.voiceURI).toLowerCase();
+    let nota = 0;
+    if (/pt[-_]pt/i.test(v.lang)) nota += 100; // português de Portugal primeiro
+    if (/premium|enhanced|aprimorad|melhorad/.test(n)) nota += 40; // vozes premium
+    if (/natural|neural/.test(n)) nota += 35; // vozes neurais (Microsoft/Edge)
+    if (/google/.test(n)) nota += 25; // Google costuma soar bem
+    if (/joana|catarina|duarte|raquel|fernanda|inês|ines/.test(n)) nota += 15; // vozes pt-PT comuns
+    if (!v.localService) nota += 5; // vozes online tendem a ser mais naturais
+    return nota;
   }
+
+  function escolherVoz() {
+    if (!window.speechSynthesis) return;
+    const vozes = speechSynthesis.getVoices();
+    // só vozes em português, ordenadas da melhor para a pior
+    vozesPt = vozes
+      .filter((v) => /^pt/i.test(v.lang))
+      .sort((a, b) => notaQualidade(b) - notaQualidade(a));
+
+    // respeita a escolha guardada, se ainda existir
+    const guardada = localStorage.getItem(VOZ_GUARDADA);
+    vozPt =
+      (guardada && vozesPt.find((v) => v.voiceURI === guardada)) ||
+      vozesPt[0] ||
+      null;
+
+    construirSeletorVoz();
+  }
+
   if (window.speechSynthesis) {
     escolherVoz();
     speechSynthesis.onvoiceschanged = escolherVoz;
@@ -48,8 +75,8 @@
       const f = new SpeechSynthesisUtterance(texto);
       f.lang = "pt-PT";
       if (vozPt) f.voice = vozPt;
-      f.rate = 0.9; // um pouquinho mais devagar para as crianças
-      f.pitch = 1.15; // voz mais alegre
+      f.rate = 0.92; // um pouquinho mais devagar para as crianças
+      f.pitch = 1.2; // voz mais meiga e alegre
       speechSynthesis.speak(f);
     } catch (e) {
       /* navegador sem suporte: silencioso */
@@ -341,6 +368,51 @@
       elFesta.innerHTML = "";
     }, 2100);
   }
+
+  // ---------- Seletor de voz (no menu) ----------
+  function nomeAmigavel(v) {
+    let nome = v.name.replace(/microsoft|google|\(.*?\)/gi, "").trim();
+    const bonus = /premium|enhanced|aprimorad|melhorad/i.test(v.name + v.voiceURI)
+      ? " ⭐"
+      : "";
+    const regiao = /pt[-_]pt/i.test(v.lang) ? " 🇵🇹" : " 🌍";
+    return (nome || v.name) + regiao + bonus;
+  }
+
+  function construirSeletorVoz() {
+    const sel = document.getElementById("seletorVoz");
+    const rotulo = document.getElementById("rotuloVoz");
+    if (!sel || !rotulo) return;
+
+    // sem vozes portuguesas (ou navegador sem suporte): esconde o seletor
+    if (!vozesPt.length) {
+      rotulo.hidden = true;
+      return;
+    }
+    rotulo.hidden = false;
+
+    sel.innerHTML = "";
+    vozesPt.forEach((v) => {
+      const opt = document.createElement("option");
+      opt.value = v.voiceURI;
+      opt.textContent = nomeAmigavel(v);
+      if (vozPt && v.voiceURI === vozPt.voiceURI) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  document.getElementById("seletorVoz").addEventListener("change", (e) => {
+    const escolhida = vozesPt.find((v) => v.voiceURI === e.target.value);
+    if (escolhida) {
+      vozPt = escolhida;
+      localStorage.setItem(VOZ_GUARDADA, escolhida.voiceURI);
+      // pequena amostra para a criança/pai ouvir a voz escolhida
+      const estavaLigado = somLigado;
+      somLigado = true;
+      falar("Olá! Vamos aprender e brincar juntos!");
+      somLigado = estavaLigado;
+    }
+  });
 
   // ===================================================
   //  EVENTOS

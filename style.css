@@ -90,13 +90,34 @@ body {
 .cartao-emoji { font-size: clamp(40px, 11vw, 70px); filter: drop-shadow(0 3px 2px rgba(0,0,0,.15)); }
 .cartao-nome { font-size: clamp(15px, 4vw, 22px); font-weight: 800; color: var(--texto); }
 
+.area-voz {
+  margin-top: 26px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
 .botao-som {
-  margin-top: 26px; border: none; cursor: pointer;
+  border: none; cursor: pointer;
   background: #fff; border-radius: 50%;
   width: 64px; height: 64px; font-size: 30px;
   box-shadow: 0 6px 0 rgba(0,0,0,.12);
 }
 .botao-som:active { transform: translateY(4px); }
+
+.rotulo-voz {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 800; color: var(--texto);
+  font-size: clamp(14px, 4vw, 18px);
+  background: rgba(255,255,255,.7);
+  padding: 8px 14px; border-radius: 20px;
+}
+.seletor-voz {
+  border: none; cursor: pointer;
+  background: #fff; color: var(--texto);
+  font-weight: 700; font-family: inherit;
+  font-size: clamp(13px, 3.6vw, 16px);
+  padding: 8px 12px; border-radius: 14px;
+  box-shadow: 0 4px 0 rgba(0,0,0,.12);
+  max-width: 60vw;
+}
 
 /* ---------- Tela de jogo ---------- */
 .barra-topo {
