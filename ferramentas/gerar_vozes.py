@@ -2,51 +2,50 @@
 # -*- coding: utf-8 -*-
 """
 Gera todos os áudios de narração do jogo "Mundo Mágico de Aprender"
-usando a API do ElevenLabs (voz neural meiga em português).
+com uma VOZ NEURAL NATIVA DE PORTUGAL (português europeu), usando o
+edge-tts (tecnologia de voz da Microsoft) — totalmente GRATUITO, sem
+conta e sem chave de API.
 
 Os ficheiros são gravados em ../audio/<id>.mp3 e é criado um
 ../audio/clips.json com a lista de ids. O jogo deteta esta pasta
-automaticamente e passa a usar estes áudios em vez da voz do navegador.
+automaticamente e passa a usar estes áudios.
 
 ────────────────────────────────────────────────────────────────────
-COMO USAR (uma só vez):
+COMO USAR (no teu Mac, uma só vez):
 
-1. Cria uma conta gratuita em  https://elevenlabs.io
-2. Vai a  https://elevenlabs.io/app/voice-library  e escolhe uma voz
-   portuguesa que gostes (carrega em "Add" para a guardares).
-3. Copia o teu API key em  Perfil → "API Keys".
-4. Copia o ID da voz: na página da voz, botão "ID" (ou em "My Voices").
-5. No Terminal, dentro da pasta do projeto, corre:
+    cd ~/Desktop/Sofiaochoa80
+    pip3 install edge-tts
+    python3 ferramentas/gerar_vozes.py
 
-       export ELEVENLABS_API_KEY="o_teu_api_key"
-       export ELEVENLABS_VOICE_ID="o_id_da_voz"      # opcional
-       python3 ferramentas/gerar_vozes.py
-
-6. Faz commit da pasta  audio/  (o jogo já a usa automaticamente).
+Depois faz upload da pasta  audio/  para o GitHub.
 ────────────────────────────────────────────────────────────────────
+
+VOZES PORTUGUESAS (pt-PT) disponíveis — troca com a variável VOZ:
+    pt-PT-RaquelNeural    (feminina, suave e clara)   ← padrão
+    pt-PT-FernandaNeural  (feminina)
+    pt-PT-DuarteNeural    (masculina)
+
+Exemplo para mudar de voz:
+    VOZ="pt-PT-FernandaNeural" python3 ferramentas/gerar_vozes.py
 """
 
+import asyncio
 import json
 import os
 import re
 import sys
-import time
 import unicodedata
-import urllib.error
-import urllib.request
+
+try:
+    import edge_tts
+except ImportError:
+    print("❌ Falta o edge-tts. Corre primeiro:\n   pip3 install edge-tts")
+    sys.exit(1)
 
 # ---- Configuração -------------------------------------------------
-API_KEY = os.environ.get("ELEVENLABS_API_KEY", "").strip()
-# Voz padrão: "Sarah", uma voz OFICIAL do ElevenLabs (suave e meiga),
-# que o plano gratuito PODE usar pela API. As vozes da "Voice Library"
-# (comunidade) só funcionam pela API em planos pagos.
-# Outras vozes oficiais meigas para experimentar (troca o ELEVENLABS_VOICE_ID):
-#   Sarah   = EXAVITQu4vr4xnSDxMaL   (suave, jovem)   ← padrão
-#   Matilda = XrExE9yKIg1WjnnlVkGX   (calorosa, narração)
-#   Lily    = pFZP5JQG7iQjIQuC4Bku   (doce)
-#   Alice   = Xb7hH8MSUJpSbSDYk0k2   (clara)
-VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "EXAVITQu4vr4xnSDxMaL").strip()
-MODEL_ID = os.environ.get("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2").strip()
+VOZ = os.environ.get("VOZ", "pt-PT-RaquelNeural").strip()   # voz portuguesa
+RITMO = os.environ.get("RITMO", "-6%").strip()              # um pouco mais devagar
+TOM = os.environ.get("TOM", "+8Hz").strip()                 # um toque mais meigo
 
 PASTA_AUDIO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "audio"))
 
@@ -113,57 +112,25 @@ def todas_as_frases():
     return unicas
 
 
-# ---- Chamada à API do ElevenLabs ---------------------------------
-def gerar_audio(texto, destino):
-    url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
-    corpo = json.dumps({
-        "text": texto,
-        "model_id": MODEL_ID,
-        "voice_settings": {
-            "stability": 0.45,
-            "similarity_boost": 0.85,
-            "style": 0.35,          # um toque expressivo/meigo
-            "use_speaker_boost": True,
-        },
-    }).encode("utf-8")
-
-    req = urllib.request.Request(url, data=corpo, method="POST")
-    req.add_header("xi-api-key", API_KEY)
-    req.add_header("Content-Type", "application/json")
-    req.add_header("Accept", "audio/mpeg")
-
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        dados = resp.read()
-    with open(destino, "wb") as fh:
-        fh.write(dados)
+async def gerar_audio(texto, destino):
+    fala = edge_tts.Communicate(texto, VOZ, rate=RITMO, pitch=TOM)
+    await fala.save(destino)
 
 
-def main():
-    if not API_KEY:
-        print("❌ Falta o API key. Faz:\n"
-              '   export ELEVENLABS_API_KEY="o_teu_api_key"\n'
-              "e corre o script outra vez.")
-        sys.exit(1)
-
+async def main():
     os.makedirs(PASTA_AUDIO, exist_ok=True)
     frases = todas_as_frases()
     ids = [slug(f) for f in frases]
 
-    print(f"🎙️  A gerar {len(frases)} áudios com a voz {VOICE_ID}")
+    print(f"🎙️  A gerar {len(frases)} áudios com a voz portuguesa {VOZ}")
     print(f"📁  Pasta de destino: {PASTA_AUDIO}\n")
+
     erros = 0
     for i, (frase, ident) in enumerate(zip(frases, ids), 1):
         destino = os.path.join(PASTA_AUDIO, f"{ident}.mp3")
-        if os.path.exists(destino) and os.path.getsize(destino) > 0:
-            print(f"  [{i:2}/{len(frases)}] (já existe) {ident}")
-            continue
         try:
-            gerar_audio(frase, destino)
+            await gerar_audio(frase, destino)  # gera sempre (substitui o antigo)
             print(f"  [{i:2}/{len(frases)}] ✅ {ident}  «{frase}»")
-            time.sleep(0.4)  # pausa simpática para não sobrecarregar a API
-        except urllib.error.HTTPError as e:
-            erros += 1
-            print(f"  [{i:2}/{len(frases)}] ❌ {ident}  (HTTP {e.code}: {e.read().decode('utf-8', 'ignore')[:120]})")
         except Exception as e:  # noqa
             erros += 1
             print(f"  [{i:2}/{len(frases)}] ❌ {ident}  ({e})")
@@ -174,9 +141,9 @@ def main():
 
     print("\n✨ Concluído!")
     if erros:
-        print(f"   ⚠️  {erros} áudio(s) falharam — corre o script outra vez para os repetir.")
-    print("   👉 Agora faz commit da pasta  audio/  e o jogo passa a usar estas vozes.")
+        print(f"   ⚠️  {erros} áudio(s) falharam — corre o script outra vez.")
+    print("   👉 Agora faz upload da pasta  audio/  para o GitHub.")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
