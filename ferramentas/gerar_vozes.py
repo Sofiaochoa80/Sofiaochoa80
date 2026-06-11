@@ -37,8 +37,14 @@ import urllib.request
 
 # ---- Configuração -------------------------------------------------
 API_KEY = os.environ.get("ELEVENLABS_API_KEY", "").strip()
-# Voz padrão (multilíngue, feminina e suave). Podes trocar por uma
-# voz portuguesa da Voice Library definindo ELEVENLABS_VOICE_ID.
+# Voz padrão: "Sarah", uma voz OFICIAL do ElevenLabs (suave e meiga),
+# que o plano gratuito PODE usar pela API. As vozes da "Voice Library"
+# (comunidade) só funcionam pela API em planos pagos.
+# Outras vozes oficiais meigas para experimentar (troca o ELEVENLABS_VOICE_ID):
+#   Sarah   = EXAVITQu4vr4xnSDxMaL   (suave, jovem)   ← padrão
+#   Matilda = XrExE9yKIg1WjnnlVkGX   (calorosa, narração)
+#   Lily    = pFZP5JQG7iQjIQuC4Bku   (doce)
+#   Alice   = Xb7hH8MSUJpSbSDYk0k2   (clara)
 VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "EXAVITQu4vr4xnSDxMaL").strip()
 MODEL_ID = os.environ.get("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2").strip()
 
