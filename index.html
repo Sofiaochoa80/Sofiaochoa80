@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🌈 Mundo Mágico de Aprender</title>
+  <meta name="description" content="Jogo educativo e lúdico para crianças de 3 a 6 anos: letras, números, cores, formas e animais." />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>" />
+</head>
+<body>
+  <!-- Céu com nuvens e sol de fundo -->
+  <div class="ceu" aria-hidden="true">
+    <div class="sol">☀️</div>
+    <div class="nuvem n1">☁️</div>
+    <div class="nuvem n2">☁️</div>
+    <div class="nuvem n3">☁️</div>
+  </div>
+
+  <!-- ===== TELA INICIAL / MENU ===== -->
+  <main id="menu" class="tela ativa">
+    <h1 class="titulo">🌈 Mundo Mágico<br />de Aprender</h1>
+    <p class="subtitulo">Toca num jogo para começar!</p>
+
+    <div class="grade-jogos">
+      <button class="cartao" data-jogo="letras" style="--cor:#ff7eb9">
+        <span class="cartao-emoji">🔤</span>
+        <span class="cartao-nome">Letras</span>
+      </button>
+      <button class="cartao" data-jogo="numeros" style="--cor:#7afcff">
+        <span class="cartao-emoji">🔢</span>
+        <span class="cartao-nome">Números</span>
+      </button>
+      <button class="cartao" data-jogo="cores" style="--cor:#feff9c">
+        <span class="cartao-emoji">🎨</span>
+        <span class="cartao-nome">Cores</span>
+      </button>
+      <button class="cartao" data-jogo="formas" style="--cor:#a0ffa0">
+        <span class="cartao-emoji">🔺</span>
+        <span class="cartao-nome">Formas</span>
+      </button>
+      <button class="cartao" data-jogo="animais" style="--cor:#ffb37e">
+        <span class="cartao-emoji">🐶</span>
+        <span class="cartao-nome">Animais</span>
+      </button>
+      <button class="cartao" data-jogo="contar" style="--cor:#d4a0ff">
+        <span class="cartao-emoji">🍎</span>
+        <span class="cartao-nome">Contar</span>
+      </button>
+    </div>
+
+    <button id="botaoSom" class="botao-som" title="Ligar/desligar som">🔊</button>
+  </main>
+
+  <!-- ===== TELA DE JOGO ===== -->
+  <section id="jogo" class="tela">
+    <header class="barra-topo">
+      <button id="voltar" class="botao-voltar" aria-label="Voltar ao menu">🏠</button>
+      <h2 id="tituloJogo" class="titulo-jogo">Jogo</h2>
+      <div id="estrelas" class="placar-estrelas">⭐ <span id="contaEstrelas">0</span></div>
+    </header>
+
+    <div id="pergunta" class="pergunta"></div>
+    <div id="opcoes" class="opcoes"></div>
+
+    <button id="repetir" class="botao-repetir">🔁 Ouvir outra vez</button>
+  </section>
+
+  <!-- Camada de festa (confete + parabéns) -->
+  <div id="festa" class="festa" aria-hidden="true"></div>
+
+  <script src="game.js"></script>
+</body>
+</html>
