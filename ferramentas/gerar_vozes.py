@@ -42,7 +42,7 @@ API_KEY = os.environ.get("ELEVENLABS_API_KEY", "").strip()
 VOICE_ID = os.environ.get("ELEVENLABS_VOICE_ID", "EXAVITQu4vr4xnSDxMaL").strip()
 MODEL_ID = os.environ.get("ELEVENLABS_MODEL_ID", "eleven_multilingual_v2").strip()
 
-PASTA_AUDIO = os.path.join(os.path.dirname(__file__), "..", "audio")
+PASTA_AUDIO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "audio"))
 
 
 # ---- mesma função "slug" do game.js (têm de coincidir!) ----------
@@ -143,7 +143,8 @@ def main():
     frases = todas_as_frases()
     ids = [slug(f) for f in frases]
 
-    print(f"🎙️  A gerar {len(frases)} áudios com a voz {VOICE_ID} …\n")
+    print(f"🎙️  A gerar {len(frases)} áudios com a voz {VOICE_ID}")
+    print(f"📁  Pasta de destino: {PASTA_AUDIO}\n")
     erros = 0
     for i, (frase, ident) in enumerate(zip(frases, ids), 1):
         destino = os.path.join(PASTA_AUDIO, f"{ident}.mp3")
